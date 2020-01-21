@@ -20,6 +20,7 @@ ext {
     set('swaggerVersion', "2.9.2")
     set('jgitVersion', "5.6.0.201912101111-r")
     set('gradleVersion', "5.5")
+    set('mavenVersion', "3.6.3")
 }
 
 repositories {
@@ -34,15 +35,19 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
     implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
     implementation "org.eclipse.jgit:org.eclipse.jgit:${jgitVersion}"
     implementation "org.gradle:gradle-core:${gradleVersion}"
     implementation "org.gradle:gradle-tooling-api:${gradleVersion}"
+    implementation ("org.apache.maven:apache-maven:${mavenVersion}") {
+        exclude group: 'org.apache.maven', module: 'maven-slf4j-provider'
+    }
 
     implementation "javax.persistence:javax.persistence-api"
 
@@ -50,7 +55,7 @@ dependencies {
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    // testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }

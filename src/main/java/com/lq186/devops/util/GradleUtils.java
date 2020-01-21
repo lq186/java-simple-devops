@@ -40,17 +40,18 @@ public final class GradleUtils {
         }
         final List<String> arguments = Arrays.asList("-xTest");
         final Map<String, String> jvmDefines = new LinkedHashMap<>();
-        final List<String> execTasks = StringUtils.isEmpty(subProjectName) ?
-                Arrays.asList(tasks) :
-                Arrays.asList(tasks).stream()
-                        .map(it -> subProjectName + ":" + it)
-                        .collect(Collectors.toList());
-        return doTask(rootProjectDirectory, arguments, jvmDefines, execTasks, tasks);
+        if (!StringUtils.isEmpty(subProjectName)) {
+            for (int i = 0; i < tasks.length; ++i) {
+                tasks[i] = subProjectName + ":" + tasks[i];
+            }
+        }
+        return doTask(rootProjectDirectory, arguments, jvmDefines, tasks);
     }
 
-    private static CommandResult<Void> doTask(File rootProjectDirectory, List<String> arguments, Map<String, String> jvmDefines, List<String> execTasks, String[] tasks) {
+    private static CommandResult<Void> doTask(File rootProjectDirectory, List<String> arguments,
+                                              Map<String, String> jvmDefines, String... execTasks) {
         try (ProjectConnection projectConnection = getProjectConnection(rootProjectDirectory)) {
-            BuildLauncher launcher = projectConnection.newBuild().forTasks(tasks).withArguments(arguments);
+            BuildLauncher launcher = projectConnection.newBuild().forTasks(execTasks).withArguments(arguments);
             List<String> jvmArgs = jvmDefines.entrySet().stream()
                     .map(it -> "-D" + it.getKey() + "=" + it.getValue())
                     .collect(Collectors.toList());
@@ -64,7 +65,7 @@ public final class GradleUtils {
                 @Override
                 public void onComplete(Void result) {
                     LOGGER.error("[doTask] success. rootProjectDirectory: {}, arguments: {}, jvmDefines: {}, tasks: {}",
-                            rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, tasks);
+                            rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, execTasks);
                     commandResult.setSuccess(true);
                     latch.countDown();
                 }
@@ -72,7 +73,7 @@ public final class GradleUtils {
                 @Override
                 public void onFailure(GradleConnectionException failure) {
                     LOGGER.error("[doTask] failed. rootProjectDirectory: {}, arguments: {}, jvmDefines: {}, tasks: {}",
-                            rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, tasks, failure);
+                            rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, execTasks, failure);
                     commandResult.setSuccess(false).setMessage(failure.getMessage());
                     latch.countDown();
                 }
@@ -81,7 +82,7 @@ public final class GradleUtils {
             return commandResult;
         } catch (Exception e) {
             LOGGER.error("[doTask] do task error. rootProjectDirectory: {}, arguments: {}, jvmDefines: {}, tasks: {}",
-                    rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, tasks, e);
+                    rootProjectDirectory.getAbsolutePath(), arguments, jvmDefines, execTasks, e);
             return CommandResult.failed(e.getMessage());
         }
     }

@@ -12,9 +12,10 @@ import java.io.File;
  */
 public class GitTests {
 
-    final String repositoryUrl = "http://39.106.153.82/chain-card/chain-card-v2.git";
+    //static final String repositoryUrl = "https://github.com/lq186/java-simple-devops.git";
+    static final String repositoryUrl = "https://github.com/lq186/algorithm.git";
 
-    final String localPath = "D:\\temp\\devops\\git\\";
+    static final String localPath = "D:\\temp\\devops\\git\\";
 
     final String username = "liuqing";
 
@@ -22,8 +23,7 @@ public class GitTests {
 
     @Test
     public void testClone() {
-        CommandResult<Void> result = GitUtils.clone(repositoryUrl,
-                localPath, username, password);
+        CommandResult<Void> result = GitUtils.clone(repositoryUrl, localPath);
         assert result.isSuccess();
     }
 
